@@ -1,0 +1,4 @@
+Get-WinEvent -ListLog * -EA silentlycontinue |
+where-object { $_.recordcount -AND $_.lastwritetime -gt [datetime]::today} |
+foreach-object { get-winevent -LogName $_.logname -MaxEvents 1 } |
+Format-Table TimeCreated, ID, ProviderName, Message -AutoSize -Wrap
