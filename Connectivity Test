@@ -1,0 +1,46 @@
+<#
+  .SYNOPSIS
+     
+    Author: Joe McCormack
+  .DESCRIPTION
+    This is for use in testing network connectivity, both to a file share and to a web server. Ping could be easily integrated as well.
+  .PARAMETER fileserver
+    This variable to be pointed at an SMB share on the network.
+  .PARAMETER webserver
+    This variable to be poitned at a webserver accessible from the host machine.
+  .PARAMETER totalcount
+    The count of times that you want this check to be run, with a 5 second wait between each check.
+#>
+ 
+param (
+    $fileserver='\\server',
+    $webserver='google.com',
+    $totalcount=10,
+    $logfile="$($env:USERPROFILE)\Desktop\log.txt"
+      )
+$i=0
+ 
+while($i -lt $totalcount)
+{
+    echo $i
+    $files = @(ls $fileserver)
+    $webservertest = (Test-NetConnection $webserver -CommonTCPPort HTTP -ea SilentlyContinue -wa SilentlyContinue)
+ 
+if ($files -eq $null)
+    {
+        $date = Get-Date
+        Write-Output "Share is down as of $date" | Out-File -filepath $logfile -Append
+    }
+    else {#Write-Output "Share is up"
+        }
+ 
+if ($webservertest.TcpTestSucceeded -eq $false)
+    {
+    $date = Get-Date
+    Write-Output "Webserver is down as of $date" | Out-File -filepath $logfile -Append
+    }
+    else {#Write-Output "Webserver is up"
+        }
+$i++
+sleep 5
+}
